@@ -9,9 +9,6 @@
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#020617" flood-opacity=".35"/>
     </filter>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#63d8ff"/>
-    </marker>
   </defs>
   <rect width="1200" height="675" rx="28" fill="url(#background)"/>
   <text x="72" y="86" fill="#f8fafc" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="700">Evidence-first AI agent operations</text>
@@ -19,46 +16,56 @@
 
   <g filter="url(#shadow)" font-family="Inter,Arial,sans-serif">
     <rect x="72" y="195" width="220" height="142" rx="18" fill="#12385b" stroke="#2e78aa" stroke-width="2"/>
-    <circle cx="112" cy="239" r="13" fill="#3ddc97"/>
-    <text x="140" y="247" fill="#f8fafc" font-size="23" font-weight="700">Synthetic agent</text>
-    <text x="98" y="286" fill="#b9cad9" font-size="17">JSON health contract</text>
-    <text x="98" y="314" fill="#b9cad9" font-size="17">Fictional state only</text>
+    <circle cx="182" cy="222" r="10" fill="#3ddc97"/>
+    <text x="182" y="258" text-anchor="middle" fill="#f8fafc" font-size="21" font-weight="700">Synthetic agent</text>
+    <text x="182" y="290" text-anchor="middle" fill="#b9cad9" font-size="16">JSON health contract</text>
+    <text x="182" y="316" text-anchor="middle" fill="#b9cad9" font-size="16">Fictional state only</text>
 
     <rect x="354" y="172" width="226" height="92" rx="18" fill="#12385b" stroke="#2e78aa" stroke-width="2"/>
-    <text x="382" y="211" fill="#f8fafc" font-size="21" font-weight="700">Health evidence</text>
-    <text x="382" y="239" fill="#b9cad9" font-size="16">Fault-isolated probes</text>
+    <text x="467" y="211" text-anchor="middle" fill="#f8fafc" font-size="21" font-weight="700">Health evidence</text>
+    <text x="467" y="239" text-anchor="middle" fill="#b9cad9" font-size="16">Fault-isolated probes</text>
 
     <rect x="354" y="287" width="226" height="92" rx="18" fill="#12385b" stroke="#2e78aa" stroke-width="2"/>
-    <text x="382" y="326" fill="#f8fafc" font-size="21" font-weight="700">Atomic backup</text>
-    <text x="382" y="354" fill="#b9cad9" font-size="16">Lock · manifest · SHA-256</text>
+    <text x="467" y="326" text-anchor="middle" fill="#f8fafc" font-size="21" font-weight="700">Atomic backup</text>
+    <text x="467" y="354" text-anchor="middle" fill="#b9cad9" font-size="16">Lock · manifest · SHA-256</text>
 
     <rect x="650" y="195" width="290" height="142" rx="18" fill="#183c45" stroke="#35c69a" stroke-width="2"/>
     <path d="M697 237v28c0 21 15 37 33 42 18-5 33-21 33-42v-28l-33-13z" fill="none" stroke="#5ee0b5" stroke-width="4"/>
     <path d="M714 264l11 11 22-25" fill="none" stroke="#5ee0b5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="785" y="247" fill="#f8fafc" font-size="21" font-weight="700">Verified restore</text>
-    <text x="785" y="278" fill="#c1e9dc" font-size="16">Network: none</text>
-    <text x="785" y="304" fill="#c1e9dc" font-size="16">Ephemeral volume</text>
+    <text x="852" y="247" text-anchor="middle" fill="#f8fafc" font-size="21" font-weight="700">Verified restore</text>
+    <text x="852" y="278" text-anchor="middle" fill="#c1e9dc" font-size="16">Network: none</text>
+    <text x="852" y="304" text-anchor="middle" fill="#c1e9dc" font-size="16">Ephemeral volume</text>
 
-    <rect x="650" y="402" width="290" height="112" rx="18" fill="#12385b" stroke="#2e78aa" stroke-width="2"/>
-    <text x="681" y="444" fill="#f8fafc" font-size="21" font-weight="700">Typed receipts</text>
-    <text x="681" y="476" fill="#b9cad9" font-size="16">Freshness · digests · links</text>
+    <rect x="650" y="402" width="270" height="112" rx="18" fill="#12385b" stroke="#2e78aa" stroke-width="2"/>
+    <text x="785" y="444" text-anchor="middle" fill="#f8fafc" font-size="21" font-weight="700">Typed receipts</text>
+    <text x="785" y="476" text-anchor="middle" fill="#b9cad9" font-size="16">Freshness · digests · links</text>
 
-    <rect x="956" y="305" width="182" height="146" rx="18" fill="#3a2d16" stroke="#f3b343" stroke-width="2"/>
-    <circle cx="1047" cy="348" r="19" fill="none" stroke="#ffd166" stroke-width="4"/>
-    <path d="M1018 405c9-24 49-24 58 0" fill="none" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
-    <text x="991" y="433" fill="#fef3c7" font-size="20" font-weight="700">Human review</text>
+    <rect x="970" y="305" width="168" height="146" rx="18" fill="#3a2d16" stroke="#f3b343" stroke-width="2"/>
+    <circle cx="1054" cy="348" r="19" fill="none" stroke="#ffd166" stroke-width="4"/>
+    <path d="M1025 405c9-24 49-24 58 0" fill="none" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
+    <text x="1054" y="433" text-anchor="middle" fill="#fef3c7" font-size="20" font-weight="700">Human review</text>
   </g>
 
-  <g fill="none" stroke="#63d8ff" stroke-width="4" marker-end="url(#arrow)">
-    <path d="M292 231 C318 231 327 218 354 218"/>
-    <path d="M292 301 C318 301 327 333 354 333"/>
-    <path d="M580 333 C615 333 617 266 650 266"/>
-    <path d="M580 218 C617 218 611 438 650 438"/>
-    <path d="M769 337 L769 402"/>
-    <path d="M940 458 C955 458 941 378 956 378"/>
+  <g fill="none" stroke="#63d8ff" stroke-width="4" stroke-linecap="round">
+    <path d="M292 231 C307 231 312 218 324 218"/>
+    <path d="M292 301 C307 301 312 333 324 333"/>
+    <path d="M580 333 C607 333 608 266 620 266"/>
+    <path d="M580 218 C610 218 605 438 620 438"/>
+    <path d="M785 337 L785 372"/>
+    <path d="M920 458 C946 458 925 378 940 378"/>
+  </g>
+  <g fill="#63d8ff">
+    <path d="M324 202 L354 218 L324 234 Z"/>
+    <path d="M324 317 L354 333 L324 349 Z"/>
+    <path d="M620 250 L650 266 L620 282 Z"/>
+    <path d="M620 422 L650 438 L620 454 Z"/>
+    <path d="M769 372 L801 372 L785 402 Z"/>
+    <path d="M940 362 L970 378 L940 394 Z"/>
   </g>
 
   <rect x="72" y="565" width="1066" height="56" rx="14" fill="#0b2037" stroke="#244a68"/>
-  <text x="104" y="600" fill="#d6e4f0" font-family="Inter,Arial,sans-serif" font-size="18">Fail closed on missing, stale, malformed, failed, future-dated, or mismatched evidence.</text>
-  <text x="1024" y="601" text-anchor="end" fill="#63d8ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700">Python + Docker Compose</text>
+  <text x="605" y="600" text-anchor="middle" fill="#d6e4f0" font-family="Inter,Arial,sans-serif" font-size="18">
+    <tspan>Fail closed on missing, stale, malformed, failed, future-dated, or mismatched evidence. </tspan>
+    <tspan fill="#63d8ff" font-weight="700">Python + Docker Compose</tspan>
+  </text>
 </svg>
