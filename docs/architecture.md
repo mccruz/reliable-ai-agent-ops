@@ -46,6 +46,16 @@ Freshness checks reject evidence that is:
 
 Receipt digests use canonical JSON and SHA-256 so downstream gates can reference exact upstream evidence.
 
+### Demo storage initialization
+
+The Compose demo runs one short-lived root initializer before any scenario
+service. It accepts only non-root UID/GID values, requires dedicated container
+mounts, rejects overlapping targets, links, and special files, and applies
+ownership only after validating every entry. It has no network and receives only
+`CHOWN` and `DAC_OVERRIDE`. The four scenario services then run as the invoking
+host user with all capabilities dropped, keeping restrictive receipt permissions
+while making the synthetic evidence reviewable and removable by that user.
+
 ### Backup
 
 `backup.py` acquires a non-blocking exclusive file lock and rejects overlapping source/output directories, symbolic links, and non-regular files. It creates a staged archive containing:
@@ -91,7 +101,7 @@ The readiness gate then validates every required control and checks that the rec
 | Filesystem input | No path overlap, symlinks, special files, or absolute receipt paths in evidence |
 | Archive input | External SHA-256 plus internal exact manifest reconciliation |
 | Restore environment | Compose `network_mode: none`, read-only backup mount, separate scratch volume |
-| Container runtime | Read-only root filesystems, `no-new-privileges`, all capabilities dropped except synthetic bind-output writes |
+| Container runtime | Scenario services run non-root with read-only root filesystems, `no-new-privileges`, and all capabilities dropped; the exited initializer is limited to guarded mount ownership |
 | Notification | Dry-run implementation, no credentials, no external delivery |
 | External processes | Fixed allowlist, validated identifiers, argv invocation, `shell=False`, timeout |
 | Decision output | Fail closed, freshness checked, human review only |

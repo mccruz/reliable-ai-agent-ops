@@ -1,8 +1,6 @@
 name: reliable-ai-agent-ops
 
 x-runtime-hardening: &runtime-hardening
-  cap_add:
-    - DAC_OVERRIDE
   cap_drop:
     - ALL
   read_only: true
@@ -10,12 +8,42 @@ x-runtime-hardening: &runtime-hardening
     - no-new-privileges:true
   tmpfs:
     - /tmp:size=16m,mode=1777
+  user: "${DEMO_UID:-1000}:${DEMO_GID:-1000}"
 
 services:
+  storage-init:
+    <<: *runtime-hardening
+    build:
+      context: .
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+    command:
+      - prepare-demo-storage
+      - --artifacts-dir
+      - /artifacts
+      - --state-dir
+      - /state
+      - --restore-dir
+      - /restore
+      - --uid
+      - "${DEMO_UID:-1000}"
+      - --gid
+      - "${DEMO_GID:-1000}"
+    network_mode: none
+    user: "0:0"
+    volumes:
+      - synthetic-state:/state
+      - restore-scratch:/restore
+      - ./demo-output:/artifacts
+
   synthetic-agent:
     <<: *runtime-hardening
     build:
       context: .
+    depends_on:
+      storage-init:
+        condition: service_completed_successfully
     entrypoint: ["python", "-m", "reliable_agent_ops.demo_service"]
     environment:
       AGENT_COMPLETION_FILE: /artifacts/scenario-complete
