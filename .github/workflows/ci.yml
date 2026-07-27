@@ -30,6 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configure demo file ownership
+        run: |
+          echo "DEMO_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "DEMO_GID=$(id -g)" >> "$GITHUB_ENV"
       - name: Validate Compose configuration
         run: docker compose config --quiet
       - name: Run synthetic recovery demo

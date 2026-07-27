@@ -34,12 +34,15 @@ This project turns those operational requirements into a small, reviewable workf
 Prerequisite: Docker with the Compose plugin.
 
 ```bash
+export DEMO_UID="$(id -u)"
+export DEMO_GID="$(id -g)"
 docker compose up --build
 python3 -m json.tool demo-output/summary.json
 ```
 
-The stack uses only fictional data and four local services:
+The stack uses only fictional data, one short-lived storage initializer, and four scenario services:
 
+- `storage-init` validates the three dedicated demo mounts and assigns them to the invoking non-root host user.
 - `synthetic-agent` exposes a JSON health contract backed by a synthetic state file.
 - `scenario-prepare` captures healthy evidence, creates a backup, checks a local update manifest, emits a dry-run notification, and injects a failure.
 - `restore-verifier` has `network_mode: none`, reads the backup, restores only into an ephemeral volume, verifies its manifest, and writes a restore receipt.
@@ -60,6 +63,7 @@ Clean up the synthetic volumes when finished:
 
 ```bash
 docker compose down --volumes
+rm -rf demo-output
 ```
 
 See the [demo walkthrough](docs/demo.md) for the failure stages and receipt files.
@@ -109,7 +113,8 @@ More detail is available in the [architecture and safety model](docs/architectur
 - Restore extraction rejects absolute paths, parent traversal, links, special files, duplicates, and oversized payloads.
 - External-command integration accepts only allowlisted prefixes and validated identifiers, never a shell string.
 - Notifications are dry-run only and reject sensitive metadata keys.
-- Compose containers use read-only root filesystems, `no-new-privileges`, and a minimal file-write capability for synthetic bind-mounted output.
+- The four scenario containers run as the invoking non-root UID/GID with read-only root filesystems, `no-new-privileges`, and all capabilities dropped.
+- A short-lived network-disabled root initializer receives only `CHOWN` and `DAC_OVERRIDE`, rejects unsafe or non-mounted targets, assigns the three synthetic mounts, and exits before the scenario begins.
 
 Please use the [security policy](SECURITY.md) for responsible disclosure.
 
@@ -137,6 +142,7 @@ src/reliable_agent_ops/
 ├── notifications.py  # notifier protocol and credential-free dry run
 ├── updates.py         # strict semantic-version manifest check
 ├── commands.py        # allowlisted, shell-free integration seam
+├── storage.py         # guarded ownership setup for dedicated demo mounts
 └── scenario.py        # deterministic Compose demo stages
 ```
 

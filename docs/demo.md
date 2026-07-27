@@ -11,15 +11,21 @@
 From the repository root:
 
 ```bash
+export DEMO_UID="$(id -u)"
+export DEMO_GID="$(id -g)"
 docker compose up --build
 ```
 
 All containers exit after the scenario completes. The fictional service has a three-minute safety timeout so a failed orchestration does not run indefinitely.
+The short-lived `storage-init` service first validates and assigns only the three
+dedicated synthetic mounts to `DEMO_UID:DEMO_GID`; all scenario services then run
+as that non-root identity.
 
 ## What happens
 
 | Stage | Expected evidence |
 | --- | --- |
+| Storage initialization | The Compose log reports three validated mounts owned by the requested non-root UID/GID |
 | Healthy baseline | `receipts/health-initial.json` passes |
 | Backup | `receipts/backup.json` references an atomic archive and SHA-256 |
 | Update check | `receipts/update.json` compares two fictional semantic versions |
@@ -78,6 +84,8 @@ The tests automate these scenarios without changing the committed example.
 
 ```bash
 docker compose down --volumes
+rm -rf demo-output
 ```
 
-Deleting `demo-output/` removes only synthetic local artifacts.
+The generated bind-mounted files are owned by the invoking user, so deleting
+`demo-output/` removes only synthetic local artifacts and does not require `sudo`.

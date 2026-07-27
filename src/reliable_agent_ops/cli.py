@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import timedelta
 from pathlib import Path
@@ -12,6 +13,7 @@ from .receipts import read_receipt, write_receipt
 from .recovery import evaluate_readiness, evaluate_recovery
 from .restore import verify_restore
 from .scenario import run_finish, run_prepare, summarize
+from .storage import prepare_demo_storage
 from .updates import check_update
 
 
@@ -105,6 +107,16 @@ def build_parser() -> argparse.ArgumentParser:
     finish.add_argument("--state-file", required=True, type=Path)
     finish.add_argument("--artifacts-dir", required=True, type=Path)
 
+    storage = subparsers.add_parser(
+        "prepare-demo-storage",
+        help="assign dedicated synthetic mounts to the non-root Compose user",
+    )
+    storage.add_argument("--artifacts-dir", required=True, type=Path)
+    storage.add_argument("--state-dir", required=True, type=Path)
+    storage.add_argument("--restore-dir", required=True, type=Path)
+    storage.add_argument("--uid", required=True, type=int)
+    storage.add_argument("--gid", required=True, type=int)
+
     summary = subparsers.add_parser("summary", help="show the final demo decision")
     summary.add_argument("--artifacts-dir", required=True, type=Path)
     return parser
@@ -182,6 +194,25 @@ def execute(args: argparse.Namespace) -> int:
             service_url=args.service_url,
             state_file=args.state_file,
             artifacts_dir=args.artifacts_dir,
+        )
+        return 0
+    if args.command == "prepare-demo-storage":
+        result = prepare_demo_storage(
+            (args.artifacts_dir, args.state_dir, args.restore_dir),
+            owner_uid=args.uid,
+            owner_gid=args.gid,
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "prepared",
+                    "entry_count": result.entry_count,
+                    "owner_uid": result.owner_uid,
+                    "owner_gid": result.owner_gid,
+                    "roots": result.roots,
+                },
+                sort_keys=True,
+            )
         )
         return 0
     if args.command == "summary":
