@@ -1,0 +1,104 @@
+name: reliable-ai-agent-ops
+
+x-runtime-hardening: &runtime-hardening
+  cap_add:
+    - DAC_OVERRIDE
+  cap_drop:
+    - ALL
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+
+services:
+  synthetic-agent:
+    <<: *runtime-hardening
+    build:
+      context: .
+    entrypoint: ["python", "-m", "reliable_agent_ops.demo_service"]
+    environment:
+      AGENT_COMPLETION_FILE: /artifacts/scenario-complete
+      AGENT_MAX_RUNTIME_SECONDS: "180"
+      AGENT_STATE_FILE: /state/health.json
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import json,urllib.request; assert json.load(urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=1))['status'] == 'healthy'",
+        ]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+      start_period: 2s
+    volumes:
+      - synthetic-state:/state
+      - ./demo-output:/artifacts
+
+  scenario-prepare:
+    <<: *runtime-hardening
+    build:
+      context: .
+    command:
+      - scenario-prepare
+      - --service-url
+      - http://synthetic-agent:8080/health
+      - --state-file
+      - /state/health.json
+      - --artifacts-dir
+      - /artifacts
+      - --update-manifest
+      - /app/examples/update-manifest.json
+    depends_on:
+      synthetic-agent:
+        condition: service_healthy
+    volumes:
+      - synthetic-state:/state
+      - ./demo-output:/artifacts
+
+  restore-verifier:
+    <<: *runtime-hardening
+    build:
+      context: .
+    command:
+      - verify-restore
+      - --backup-dir
+      - /artifacts/backups
+      - --restore-root
+      - /restore
+      - --receipt
+      - /receipts/restore.json
+      - --network-disabled
+    depends_on:
+      scenario-prepare:
+        condition: service_completed_successfully
+    network_mode: none
+    volumes:
+      - ./demo-output/backups:/artifacts/backups:ro
+      - ./demo-output/receipts:/receipts
+      - restore-scratch:/restore
+
+  scenario-finish:
+    <<: *runtime-hardening
+    build:
+      context: .
+    command:
+      - scenario-finish
+      - --service-url
+      - http://synthetic-agent:8080/health
+      - --state-file
+      - /state/health.json
+      - --artifacts-dir
+      - /artifacts
+    depends_on:
+      restore-verifier:
+        condition: service_completed_successfully
+    volumes:
+      - synthetic-state:/state
+      - ./demo-output:/artifacts
+
+volumes:
+  restore-scratch:
+  synthetic-state:

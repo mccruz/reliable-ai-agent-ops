@@ -1,0 +1,22 @@
+{
+  "backup": {
+    "retention": 3,
+    "source_label": "synthetic-agent-state"
+  },
+  "health": {
+    "services": [
+      {
+        "expected_status": "healthy",
+        "name": "synthetic-agent",
+        "timeout_seconds": 2,
+        "url": "http://synthetic-agent:8080/health"
+      }
+    ]
+  },
+  "notifications": {
+    "mode": "dry-run"
+  },
+  "receipts": {
+    "max_age_seconds": 900
+  }
+}
