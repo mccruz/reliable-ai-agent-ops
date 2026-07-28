@@ -4,6 +4,17 @@ Reliable AI Agent Ops is a credential-free Python and Docker Compose case study 
 
 ![Architecture showing synthetic service health, atomic backup, isolated restore verification, typed receipts, and a human review gate](assets/architecture.svg)
 
+## Review this project in 3 minutes (no setup required)
+
+You do **not** need Docker, Python, credentials, or command-line experience to evaluate this project.
+
+1. Follow the architecture diagram above from the fictional agent through backup and isolated restore to human review.
+2. Read the [recruiter-ready implementation evidence](#recruiter-ready-implementation-evidence) table.
+3. Review the [architecture and safety model](docs/architecture.md) for the reliability decisions and deliberate limits.
+4. Inspect the [automated checks](https://github.com/mccruz/reliable-ai-agent-ops/actions/workflows/ci.yml), which run the Python test matrix and the complete Docker recovery demonstration.
+
+Running the containers is optional. The hands-on instructions are provided for technical reviewers who want to reproduce the fictional recovery scenario.
+
 ## Why this project exists
 
 AI automation does not end when an agent produces an answer. Implementation teams also need evidence that the service is healthy, state can be recovered, failures remain isolated, and no recovery action proceeds on stale or incomplete evidence.
@@ -29,26 +40,56 @@ This project turns those operational requirements into a small, reviewable workf
 | Integration safety | Credential-free notifications, allowlisted external-command seams, validated identifiers, `shell=False`, and bounded timeouts |
 | Delivery quality | Standard-library Python, an offline unit/integration suite, Python 3.11–3.14 CI, and a reproducible synthetic demo |
 
-## Run the Docker recovery demo
+## Optional: run the Docker recovery demo
 
-Prerequisite: Docker with the Compose plugin.
+The demo uses only fictional data and local containers. It does not require API keys, external services, or production access.
+
+### Before you start
+
+Install [Git](https://git-scm.com/downloads) plus [Docker Desktop](https://www.docker.com/products/docker-desktop/) on macOS or Windows, or Git plus Docker Engine with the Compose plugin on Linux. Make sure Docker Desktop is open, then confirm:
+
+```bash
+git --version
+docker --version
+docker compose version
+```
+
+### 1. Download the repository
+
+```bash
+git clone https://github.com/mccruz/reliable-ai-agent-ops.git
+cd reliable-ai-agent-ops
+```
+
+Run every remaining command from this directory. Your terminal prompt should show `reliable-ai-agent-ops` rather than only `~`.
+
+### 2. Run the scenario
+
+On macOS or Linux:
 
 ```bash
 export DEMO_UID="$(id -u)"
 export DEMO_GID="$(id -g)"
 docker compose up --build
-python3 -m json.tool demo-output/summary.json
 ```
 
-The stack uses only fictional data, one short-lived storage initializer, and four scenario services:
+On Windows PowerShell, Docker Desktop can use the Compose defaults:
 
-- `storage-init` validates the three dedicated demo mounts and assigns them to the invoking non-root host user.
-- `synthetic-agent` exposes a JSON health contract backed by a synthetic state file.
-- `scenario-prepare` captures healthy evidence, creates a backup, checks a local update manifest, emits a dry-run notification, and injects a failure.
-- `restore-verifier` has `network_mode: none`, reads the backup, restores only into an ephemeral volume, verifies its manifest, and writes a restore receipt.
-- `scenario-finish` simulates a reviewed remediation, confirms recovered health, evaluates recovery evidence, and writes the final readiness decision.
+```powershell
+docker compose up --build
+```
 
-Expected final result:
+The first run builds the local image, so it can take a few minutes. All containers should exit after the scenario finishes.
+
+### 3. Review the result
+
+Open `demo-output/summary.json` in any text editor. On macOS or Linux, you can also print it with:
+
+```bash
+cat demo-output/summary.json
+```
+
+Success looks like this:
 
 ```json
 {
@@ -59,16 +100,33 @@ Expected final result:
 }
 ```
 
+The stack uses only fictional data, one short-lived storage initializer, and four scenario services:
+
+- `storage-init` validates the three dedicated demo mounts and assigns them to the invoking non-root host user.
+- `synthetic-agent` exposes a JSON health contract backed by a synthetic state file.
+- `scenario-prepare` captures healthy evidence, creates a backup, checks a local update manifest, emits a dry-run notification, and injects a failure.
+- `restore-verifier` has `network_mode: none`, reads the backup, restores only into an ephemeral volume, verifies its manifest, and writes a restore receipt.
+- `scenario-finish` simulates a reviewed remediation, confirms recovered health, evaluates recovery evidence, and writes the final readiness decision.
+
 Clean up the synthetic volumes when finished:
 
 ```bash
 docker compose down --volumes
-rm -rf demo-output
+rm -rf ./demo-output
 ```
 
 See the [demo walkthrough](docs/demo.md) for the failure stages and receipt files.
 
-## Run the tests locally
+### Common setup problems
+
+| Message | What it means | What to do |
+| --- | --- | --- |
+| `command not found: docker` | Docker is not installed. | Install Docker Desktop or Docker Engine using the link above. |
+| `Cannot connect to the Docker daemon` | Docker is installed but not running. | Open Docker Desktop and wait until it reports that the engine is running. |
+| `no configuration file provided` | The terminal is not in the cloned repository. | Run `cd reliable-ai-agent-ops`, then retry. |
+| A receipt under `demo-output/` cannot be read | The demo was started without the current user's UID/GID on macOS or Linux. | Run the two `export DEMO_...` commands, clean up with `docker compose down --volumes`, and rerun. |
+
+## Optional: run the Python tests locally
 
 Use a virtual environment so the project does not modify a Homebrew- or system-managed Python installation:
 

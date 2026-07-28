@@ -1,18 +1,42 @@
 # Synthetic recovery demo
 
+This is an optional hands-on guide for technical reviewers. To review the project without installing anything, use the [main README](../README.md), [architecture diagram](../assets/architecture.svg), and [architecture and safety model](architecture.md).
+
 ## Prerequisites
 
-- Docker Engine or Docker Desktop
-- Docker Compose v2
-- No credentials, API keys, or external services
+- Docker Desktop on macOS or Windows, or Docker Engine on Linux
+- Docker Compose v2 (`docker compose`, with a space)
+- Git for downloading the repository
+- No credentials, API keys, external services, or production access
+
+Make sure Docker is running:
+
+```bash
+git --version
+docker --version
+docker compose version
+```
 
 ## Run
 
-From the repository root:
+Download the repository if needed:
+
+```bash
+git clone https://github.com/mccruz/reliable-ai-agent-ops.git
+cd reliable-ai-agent-ops
+```
+
+Run all later commands from this directory. On macOS or Linux:
 
 ```bash
 export DEMO_UID="$(id -u)"
 export DEMO_GID="$(id -g)"
+docker compose up --build
+```
+
+On Windows PowerShell, Docker Desktop can use the Compose defaults:
+
+```powershell
 docker compose up --build
 ```
 
@@ -56,11 +80,13 @@ demo-output/
 └── summary.json
 ```
 
-Review the concise outcome:
+Review the concise outcome by opening `demo-output/summary.json` in a text editor. On macOS or Linux:
 
 ```bash
-python3 -m json.tool demo-output/summary.json
+cat demo-output/summary.json
 ```
+
+The top-level `status` should be `passed`, `human_review_required` should be `true`, and `automatic_recovery_executed` should be `false`.
 
 ## Failure experiments
 
@@ -84,8 +110,17 @@ The tests automate these scenarios without changing the committed example.
 
 ```bash
 docker compose down --volumes
-rm -rf demo-output
+rm -rf ./demo-output
 ```
 
 The generated bind-mounted files are owned by the invoking user, so deleting
 `demo-output/` removes only synthetic local artifacts and does not require `sudo`.
+
+## Troubleshooting
+
+| Message | Likely cause | Resolution |
+| --- | --- | --- |
+| `command not found: docker` | Docker is not installed. | Install Docker Desktop or Docker Engine, then reopen the terminal. |
+| `Cannot connect to the Docker daemon` | Docker is installed but its engine is stopped. | Open Docker Desktop and wait for it to finish starting. |
+| `no configuration file provided` | The terminal is outside the cloned repository. | Run `cd reliable-ai-agent-ops` and retry. |
+| A generated receipt is not readable | The current UID/GID was not supplied on macOS or Linux. | Run the two `export DEMO_...` commands, clean up, and rerun. |
