@@ -1,22 +1,39 @@
 # Reliable AI Agent Ops
 
-A credential-free Python and Docker project that shows how to check an AI
-service, create a backup, test the backup in isolation, and require human review
-before recovery.
+A Python and Docker demo that helps an operator check whether an AI service
+can be recovered from its backup. It produces evidence for a recovery decision
+using fictional data and stops for human review.
+
+## Example result
+
+**Synthetic scenario:** a service starts healthy, a failure is introduced,
+and a backup is restored into separate temporary storage.
+
+| Report item | Expected result |
+| --- | --- |
+| Backup and restored files | Checksums match |
+| Recovery evidence | Complete, current, and linked to the failure |
+| Final decision | `ready-for-human-review` |
+| Automatic production recovery | Not executed |
+
+The [scenario integration test](tests/test_scenario.py) verifies the linked
+recovery result. Docker provides the network isolation in the full demo; this
+is not a production uptime or recovery-time claim.
+
+## My contribution
+
+I built the health probes, backup and restore verification, linked evidence
+records, and recovery decision checks. The fictional service exercises
+operational controls; it does not call an LLM.
 
 ![Architecture showing health checks, backup, isolated restore testing, and human review](assets/architecture.svg)
 
-## Review this project in 3 minutes
+<a id="review-this-project-in-3-minutes"></a>
 
-No setup is required:
+## Explore the project
 
-1. Follow the diagram from service health through backup and restore testing.
-2. Read [How it works](#how-it-works) and
-   [Safety and limits](#safety-and-limits).
-3. Open the [architecture](docs/architecture.md),
-   [demo guide](docs/demo.md), or
-   [automated checks](https://github.com/mccruz/reliable-ai-agent-ops/actions/workflows/ci.yml)
-   for technical evidence.
+Start with the example above, then follow the diagram and the
+[engineering evidence](#engineering-evidence). Setup is optional for review.
 
 ## The problem
 
@@ -37,16 +54,13 @@ with a person—not an automatic production action.
 6. Recheck health and connect the failure, backup, restore, and recovery records.
 7. Stop at `ready-for-human-review`.
 
-## What this demonstrates
+## Engineering evidence
 
-| Need | Project response |
-| --- | --- |
-| One service can fail without hiding other results | Check services independently and record clear failure reasons |
-| A backup can be incomplete or changed | Lock creation and verify file and archive checksums |
-| A restore test must not touch live data | Use temporary storage and disable container networking |
-| Old or inconsistent evidence is unsafe | Reject missing, stale, future-dated, or mismatched records |
-| Recovery should remain accountable | Require human review instead of automatic remediation |
-| Integrations can leak operational detail | Use credential-free notification previews and limited commands |
+| Capability | Implementation | Check |
+| --- | --- | --- |
+| Detect incomplete or altered backups | [Backup](src/reliable_agent_ops/backup.py), [restore](src/reliable_agent_ops/restore.py) | [Archive and restore tests](tests/test_backup_restore.py) |
+| Reject stale or inconsistent recovery evidence | [Recovery](src/reliable_agent_ops/recovery.py) | [Recovery tests](tests/test_recovery.py) |
+| Join the stages into a review decision | [Scenario](src/reliable_agent_ops/scenario.py) | [Integration test](tests/test_scenario.py) |
 
 ## Optional Docker demo
 
@@ -74,7 +88,9 @@ the [demo guide](docs/demo.md) for expected stages, cleanup, and troubleshooting
   production configuration.
 - Scenario services run as non-root users with restricted container
   capabilities.
-- The restore check uses separate temporary storage and no network access.
+- The Docker restore check uses separate temporary storage and enforces no
+  network access. The standalone CLI flag is an operator attestation, not a
+  network switch.
 - Archive extraction rejects unsafe paths, links, unexpected files, and checksum
   mismatches.
 - Recovery stops when evidence is missing, outdated, invalid, or inconsistent.
