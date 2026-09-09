@@ -100,9 +100,17 @@ Run the demo once, append text to the newest `.tar.gz`, and rerun only the resto
 
 Change a receipt's `checked_at` to an old UTC timestamp and run the readiness command. The decision becomes `blocked`.
 
-### Prove fail-closed isolation
+### Check the isolation prerequisite
 
-Remove `network_mode: none` from a local copy of `compose.yaml` and omit `--network-disabled`. Restore verification refuses to issue a passing receipt.
+Omit `--network-disabled` from the restore command in a disposable copy of the
+demo. Restore verification refuses to issue a passing receipt. This checks the
+required operator attestation; it does not test the runtime's network access.
+
+The CLI flag **does not disable networking or inspect the container**. Only use
+it when the containing runtime provides that isolation. In the supplied demo,
+Compose enforces `network_mode: none` on `restore-verifier`, mounts the backup
+read-only, and provides separate scratch storage. Removing that Compose setting
+while retaining the flag would make the attestation inaccurate.
 
 The tests automate these scenarios without changing the committed example.
 

@@ -78,7 +78,7 @@ The archive and checksum are moved into place atomically. The receipt is written
 - malformed digests and sizes;
 - excessive member counts or restored bytes.
 
-Files are extracted into a new temporary target, hashed while streaming, and compared as an exact set against the manifest. A passing receipt requires an explicit network-disabled runtime and records that the target was ephemeral and no live volume was touched.
+Files are extracted into a new temporary target, hashed while streaming, and compared as an exact set against the manifest. A passing receipt requires the caller to attest that its runtime is network-disabled and records that the target was ephemeral and no live volume was touched. The standalone CLI flag does not enforce or detect network isolation; the operator is responsible for that attestation.
 
 In the demo, the `restore-verifier` Compose service enforces `network_mode: none`, receives the backup directory read-only, and uses a separate scratch volume.
 
